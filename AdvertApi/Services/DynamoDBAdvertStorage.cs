@@ -80,6 +80,14 @@ namespace AdvertApi.Services
             return true;
         }
 
+        public async Task<List<AdvertModel>> GetAll()
+        {
+            using var client = new AmazonDynamoDBClient();
+            using var context = new DynamoDBContext(client);
+            var allItems = await context.ScanAsync<AdvertDbModel>(new List<ScanCondition>()).GetRemainingAsync();
+            return allItems.Select(item => mapper.Map<AdvertModel>(item)).ToList();
+        }
+
         public async Task<AdvertModel> GetById(string id)
         {
             using var client = new AmazonDynamoDBClient();
