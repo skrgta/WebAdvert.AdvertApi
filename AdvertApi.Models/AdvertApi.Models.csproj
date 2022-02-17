@@ -1,9 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>AdvertApi.Models.skrgta</PackageId>
+    <Authors>Shekhar Gupta</Authors>
+    <Company>None</Company>
+    <Product>Web Advert Microservices</Product>
+    <PackageProjectUrl>https://github.com/skrgta/WebAdvert.AdvertApi</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/skrgta/WebAdvert.AdvertApi</RepositoryUrl>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <AssemblyVersion></AssemblyVersion>
+    <Version>1.1.1</Version>
   </PropertyGroup>
 
 </Project>

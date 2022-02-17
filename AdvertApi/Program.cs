@@ -1,5 +1,5 @@
+using AdvertApi.HealthChecks;
 using AdvertApi.Services;
-using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IAdvertStorageService, DynamoDBAdvertStorage>();
+builder.Services.AddHealthChecks()
+    .AddCheck<StorageHealthCheck>("Storage", null, null, new TimeSpan(0, 1, 0));
 
 var app = builder.Build();
 
@@ -20,6 +22,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHealthChecks("/health");
 
 app.UseAuthorization();
 

@@ -1,6 +1,7 @@
 ﻿using AdvertApi.Models;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.Runtime;
 using AutoMapper;
 
 namespace AdvertApi.Services
@@ -28,6 +29,33 @@ namespace AdvertApi.Services
             return dbModel.Id;
         }
 
+        public async Task<bool> CheckHealthAsync()
+        {
+            try
+            {
+                var clientConfig = new AmazonDynamoDBConfig
+                {
+                    ServiceURL = "http://localhost:5025",
+                    RegionEndpoint = Amazon.RegionEndpoint.USEast1
+                };
+
+                using var client = new AmazonDynamoDBClient(clientConfig);
+                var tabledata = await client.DescribeTableAsync("Adverts");
+                return string.Compare(tabledata.Table.TableStatus, "active", true) == 0;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// if s3 image was uploaded successfully then change the advert record status 
+        /// if advert is not present in DynamoDb => no id present, then delete the record from the
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public async Task<bool> Confirm(ConfirmAdvertModel model)
         {
             using var client = new AmazonDynamoDBClient();
@@ -37,8 +65,10 @@ namespace AdvertApi.Services
             if (record == null)
                 throw new KeyNotFoundException($"A record with ID={model.Id} was not found");
 
-            if(model.Status != AdvertStatus.Active)
+            // model is coming from the MVC project
+            if(model.Status == AdvertStatus.Active)
             {
+                // change the actual record in database
                 record.Status = AdvertStatus.Active;
                 await context.SaveAsync(record);
             }
@@ -48,6 +78,16 @@ namespace AdvertApi.Services
             }
 
             return true;
+        }
+
+        public async Task<AdvertModel> GetById(string id)
+        {
+            using var client = new AmazonDynamoDBClient();
+            using var context = new DynamoDBContext(client);
+            var record = await context.LoadAsync<AdvertDbModel>(id);
+            var advertModel = mapper.Map<AdvertModel>(record);
+
+            return advertModel;
         }
     }
 }
